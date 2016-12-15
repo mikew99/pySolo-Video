@@ -1382,6 +1382,7 @@ class Monitor(object):
         """
         Capture from movie file
         """
+	print "captureFromMovie()..."
         self.isVirtualCam = True
         self.source = camera
         
@@ -1395,7 +1396,8 @@ class Monitor(object):
             self.resolution = self.cam.getResolution()
             self.numberOfFrames = self.cam.getTotalFrames()
         except:
-            pass
+	    print "Caught setup error in __captureFromMovie...", sys.exc_info()[0]
+            #pass
 
         return self.cam is not None
 
