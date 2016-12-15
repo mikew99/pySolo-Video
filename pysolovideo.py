@@ -457,6 +457,7 @@ class virtualCamMovie(Cam):
                         True                Playback in a loop
         
         """
+        print "virtualCamMovie()::__init__()"
         self.path = path
         
         if start < 0: start = 0
@@ -467,9 +468,9 @@ class virtualCamMovie(Cam):
         if self.step < 1: self.step = 1
         
         self.loop = loop
-
+        print "virtualCamMovie() creating capture..."
         self.capture = cv2.VideoCapture(self.path)
-
+        print "virtualCamMovie() created capture..."
         #finding the input resolution
         w = self.capture.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
         h = self.capture.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
@@ -481,9 +482,11 @@ class virtualCamMovie(Cam):
         self.setResolution(*resolution)
 
         self.totalFrames = self.getTotalFrames()
+        print "virtualCamMovie::__init__() totalFrames: " + str(self.totalFrames)
+
         if end < 1 or end > self.totalFrames: end = self.totalFrames
         self.lastFrame = end
-       
+        print "virtualCamMovie()::__init__() finished..."
        
     def getResolution(self):
         """
@@ -512,7 +515,7 @@ class virtualCamMovie(Cam):
         """
         Returns frame, timestamp
         """
-
+        print "virtualCamMovie::getImage()"
         #cv2.SetCaptureProperty(self.capture, cv2.CV_CAP_PROP_POS_FRAMES, self.currentFrame)
         # this does not work properly. Image is very corrupted
         __, frame = self.capture.read()
@@ -520,6 +523,7 @@ class virtualCamMovie(Cam):
         try:
             frame.shape > 0
         except:
+            print "virtualCamMovie::getImage(): Couldn't get frame shape!"
             frame = self.getBlackFrame()
             
         
@@ -553,11 +557,14 @@ class virtualCamMovie(Cam):
         """
         
         if ( self.currentFrame >= self.totalFrames ) and not self.loop:
+            print "virtualCamMovie::isLastFrame() returning true"
             return True
         elif ( self.currentFrame >= self.totalFrames ) and self.loop:
+            print "virtualCamMovie::isLastFrame() returning false (looping)"
             self.currentFrame = self.start
             return False
         else:
+            print "virtualCamMovie::isLastFrame() returning false"
             return False
 
 
@@ -1382,7 +1389,7 @@ class Monitor(object):
         """
         Capture from movie file
         """
-	print "captureFromMovie()..."
+        print "captureFromMovie()..."
         self.isVirtualCam = True
         self.source = camera
         
@@ -1393,10 +1400,26 @@ class Monitor(object):
             loop = options['loop']
         try:
             self.cam = virtualCamMovie(path=camera, resolution = resolution)
+        except Exception as excpt:
+            print "Caught setup error in virtualCamMovie()", sys.exc_info()[0]
+            print type(excpt)
+            print excpt.args
+            print excpt
+            print "path: " + camera
+            #print "resolution: " + resolution
+            return False
+
+        try:
             self.resolution = self.cam.getResolution()
+        except:
+            print "Caught setup error in self.cam.getResolution()", sys.exc_info()[0]
+            return False
+
+        try:
             self.numberOfFrames = self.cam.getTotalFrames()
         except:
-	    print "Caught setup error in __captureFromMovie...", sys.exc_info()[0]
+            print "Caught setup error in self.cam.getTotalFrames()", sys.exc_info()[0]
+            return False
             #pass
 
         return self.cam is not None
