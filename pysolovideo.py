@@ -468,7 +468,7 @@ class virtualCamMovie(Cam):
         if self.step < 1: self.step = 1
         
         self.loop = loop
-        print "virtualCamMovie() creating capture..."
+        print "virtualCamMovie() creating capture from path: " + self.path
         self.capture = cv2.VideoCapture(self.path)
         print "virtualCamMovie() created capture..."
         #finding the input resolution
@@ -518,17 +518,18 @@ class virtualCamMovie(Cam):
         print "virtualCamMovie::getImage()"
         #cv2.SetCaptureProperty(self.capture, cv2.CV_CAP_PROP_POS_FRAMES, self.currentFrame)
         # this does not work properly. Image is very corrupted
-        __, frame = self.capture.read()
+        if not self.isLastFrame():
+          __, frame = self.capture.read()
+          self.currentFrame += self.step
+          try:
+             frame.shape > 0
+          except:
+              print "virtualCamMovie::getImage(): Couldn't get frame shape!"
+              frame = self.getBlackFrame()
+        else:
+          print "last frame!"
+          frame = self.getBlackFrame()
 
-        try:
-            frame.shape > 0
-        except:
-            print "virtualCamMovie::getImage(): Couldn't get frame shape!"
-            frame = self.getBlackFrame()
-            
-        
-        self.currentFrame += self.step
-            
         #elif self.currentFrame > self.lastFrame and not self.loop: return False
 
         if self.scale:
@@ -2012,7 +2013,9 @@ class Monitor(object):
         """
 
         ##self.imageCount += 1
+        print "Getting frame..."
         frame, time = self.cam.getImage()
+        print "got frame"
         #print time
         
         # TRACKING RELATED
@@ -2090,6 +2093,7 @@ class Monitor(object):
         
         #self.__image_queue.put(frame)
         self.__image_queue = frame
+        print "Returning frame"
         return frame
 
     def getImageFromQueue(self):
