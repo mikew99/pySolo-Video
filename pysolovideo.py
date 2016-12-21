@@ -1329,13 +1329,17 @@ class Monitor(object):
         """
         #cv2.namedWindow("preview")
         
-        while self.isTracking:
+        while self.isTracking and not self.cam.isLastFrame():
             #frame = self.GetImage(drawROIs = True, selection=None, crosses=None, timestamp=True, draw_path=False)
             frame = self.GetImage(drawROIs = True, selection=None, crosses=None, timestamp=True, draw_path=False)
             #cv2.imshow("preview", frame)
+        self.isTracking = False
            
 
     def startTracking(self):
+        # Force looping off
+        self.SetLoop(False)
+        
         self.track_thread = threading.Thread(target=self.trackingLoop)
         self.isTracking = True
         self.starttime = datetime.datetime.now()
@@ -1394,13 +1398,19 @@ class Monitor(object):
         self.isVirtualCam = True
         self.source = camera
         
-        if options:
+        # Default options
+        step = None
+        start = None
+        end = None
+        loop = False
+        
+        if options != None:
             step = options['step']
             start = options['start']
             end = options['end']
             loop = options['loop']
         try:
-            self.cam = virtualCamMovie(path=camera, resolution = resolution)
+            self.cam = virtualCamMovie(path=camera,step=step,start=start,end=end,loop=loop,resolution=resolution)
         except Exception as excpt:
             print "Caught setup error in virtualCamMovie()", sys.exc_info()[0]
             print type(excpt)
@@ -1432,6 +1442,12 @@ class Monitor(object):
         self.isVirtualCam = True
         self.source = camera
         
+        # Default options
+        step = None
+        start = None
+        end = None
+        loop = False
+        
         if options:
             step = options['step']
             start = options['start']
@@ -1439,7 +1455,7 @@ class Monitor(object):
             loop = options['loop'] 
 
         try:
-            self.cam = virtualCamFrames(path = camera, resolution = resolution)
+            self.cam = virtualCamFrames(path=camera,step=step,start=start,end=end,loop=loop,resolution=resolution)
             self.resolution = self.cam.getResolution()
             self.numberOfFrames = self.cam.getTotalFrames()
         except:

@@ -661,11 +661,13 @@ class previewPanel(wx.Panel):
     def Play(self, status=True, showROIs=True):
         """
         """
-
         if self.camera != None and self.resolution != None and not self.mon.hasSource():
-            self.mon.setSource(self.camera, self.resolution)
+            options = {'loop':True}
+            self.mon.setSource(self.camera, self.resolution, options)
 
         if self.mon:
+            # Since we're displaying in the live view, if it's a movie, loop it
+            self.mon.SetLoop(True)
             self.drawROI = showROIs
             self.isPlaying = status
             
