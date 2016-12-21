@@ -48,16 +48,27 @@ class mainNotebook(wx.Notebook):
 
         self.panelTwo = panelLiveView(self)
         self.AddPage(self.panelTwo, "Live View")
-        
+
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGING, self.OnPageChanging)
-        
+        self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
         self.Layout()
+        sel = self.GetSelection();
         
     def OnPageChanging(self, event):
         """
         """
+        sel = self.GetSelection();
+        if(sel == 1):
+            self.panelTwo.StopPlaying()
+            
+    def OnPageChanged(self, event):
+        """
+        """
+        sel = self.GetSelection();
         #self.panelOne.StopPlaying()
-        self.panelTwo.StopPlaying()
+        if(sel == 1):
+            #print "mainNotebook calling Startplaying()"
+            self.panelTwo.StartPlaying()
         
 class mainFrame(wx.Frame):
     """

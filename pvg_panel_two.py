@@ -144,6 +144,10 @@ class panelLiveView(wx.Panel):
         """
         if self.fsPanel and self.fsPanel.isPlaying: self.fsPanel.Stop()
 
+    def StartPlaying(self):
+        """
+        """
+        if self.fsPanel: self.fsPanel.Play()
 
     def onChangeMonitor(self, event):
         """
@@ -160,7 +164,6 @@ class panelLiveView(wx.Panel):
             if md['source']:
                 if self.fsPanel.isPlaying: self.fsPanel.Stop()
 
-                    
                 self.fsPanel.setMonitor( pysolovideo.MONITORS[mn] )
                 self.sourceTXTBOX.SetValue( 'Source: %s' % md['source'] )
                     
