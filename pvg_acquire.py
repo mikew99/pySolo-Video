@@ -363,11 +363,11 @@ class pvg_AcquirePanel(wx.Panel):
 
             if force == "start" or recording: 
                 self.active_monitors[monitor].startTracking()
-                self.recordBTNS[monitor-1].SetLabelText('Stop')
+                self.recordBTNS[monitor-1].SetLabel('Stop')
                 self.recordBTNS[monitor-1].SetValue(True)
                 self.timer.Start(1000)
             elif force == "stop" or not recording:
-                self.recordBTNS[monitor-1].SetLabelText('Start')
+                self.recordBTNS[monitor-1].SetLabel('Start')
                 self.active_monitors[monitor].stopTracking()
                 self.recordBTNS[monitor-1].SetValue(False)
                 self.timer.Stop()
