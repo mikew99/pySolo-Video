@@ -865,13 +865,13 @@ class ROImask():
         """
         Save the current crop data to a file
         """
-	print "Saving to file: " + filename
+	      #print "Saving to file: " + filename
         cf = open(filename, 'w')
         self.serial = serial
         #jsonData = {'ROIS':self.ROIS, 'pointsToTrack':self.points_to_track,'referencePoints': self.referencePoints, 'serial':self.serial}
         #json.dumps({self.ROIS, self.points_to_track, self.referencePoints, self.serial},cf)
         jsonData = {'ROIS':self.ROIS, 'pointsToTrack':self.points_to_track, 'serial':self.serial}
-	json.dump(jsonData,cf)
+        json.dump(jsonData,cf)
         cf.close()
 
     def loadROIS(self, filename):
