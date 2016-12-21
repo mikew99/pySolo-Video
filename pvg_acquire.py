@@ -398,7 +398,10 @@ class pvg_AcquirePanel(wx.Panel):
             if self.active_monitors[n+1].isTracking:
                 t, r = self.active_monitors[n+1].getUptime()
                 self.uptimeTXT[n].SetValue("%s (%s)" % (t, r))
-
+            else:
+                monitor = self.active_monitors[n+1]
+                self.recordBTNS[n-1].SetValue(False)
+                self.onToggleRecording(n+1, force="stop")
         self.displayImage()
             
 
