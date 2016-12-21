@@ -385,10 +385,10 @@ class pvg_AcquirePanel(wx.Panel):
         """
 
         #while self.dopreview:
-        if self.dopreview:
-            frame = self.active_monitors[self.dopreview].getImageFromQueue()
-            if frame is not None:
-                cv2.imshow("preview", frame)
+        #if self.dopreview:
+        #    frame = self.active_monitors[self.dopreview].getImageFromQueue()
+        #    if frame is not None:
+        #        cv2.imshow("preview", frame)
 
         
     def updateTimes(self, event):
