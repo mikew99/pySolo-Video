@@ -63,7 +63,7 @@ class partial: #AKA curry
         return self.fun(*(self.pending + args), **kw)
 
 class comboFileBrowser(wx.ComboBox):
-    def __init__(self, parent, id=-1,  pos=(-1,-1), size=(-1,-1), value="", choices=[], style=0, dialogTitle = "Choose a File", startDirectory = ".", fileMask = "*.*", browsevalue="Browse for file", changeCallback= None):
+    def __init__(self, parent, id=-1,  pos=(-1,-1), size=(-1,-1), value="", choices=[], style=0, dialogTitle = "Choose a File", startDirectory = ".", fileMask = "*.*", browsevalue=["Browse for file"], changeCallback= None):
         
         choices = list(set([value] + choices ))
         choices.sort()
@@ -73,20 +73,39 @@ class comboFileBrowser(wx.ComboBox):
         self.defaultFile = value
         self.browsevalue=browsevalue
         self.changeCallback = changeCallback
-        
-        wx.ComboBox.__init__(self, parent, id, value, pos, size, choices + [browsevalue], style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
+        wx.ComboBox.__init__(self, parent, id, value, pos, size, choices + browsevalue, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
         self.Bind(wx.EVT_COMBOBOX, self.onItemChanged)
         
     def onItemChanged(self, event):
         """
         """
-        if event.GetString() == self.browsevalue:
-        
+        #if event.GetString() == self.browsevalue:
+        if event.GetString() == self.browsevalue[0]:
+
             dlg = wx.FileDialog(
                 self, message=self.dialogTitle,
                 defaultDir=self.startDirectory,
                 defaultFile=self.defaultFile,
                 wildcard=self.fileMask,
+                style=wx.OPEN | wx.CHANGE_DIR
+                )
+
+            if dlg.ShowModal() == wx.ID_OK:
+                path = dlg.GetPath()
+                __, filename = os.path.split(path)
+                self.Append(filename)
+                self.SetValue(filename)
+                event.SetString(path)
+                #self.Command(event)
+                
+            
+            dlg.Destroy()
+            
+        elif event.GetString() == self.browsevalue[1]:
+
+            dlg = wx.DirDialog(
+                self, message=self.dialogTitle,
+                defaultPath=self.startDirectory,
                 style=wx.OPEN | wx.CHANGE_DIR
                 )
 
@@ -175,13 +194,13 @@ class pvg_AcquirePanel(wx.Panel):
             gridSizer.Add(wx.StaticText(self, -1, "Monitor %s" % mn ), 0, wx.ALL|wx.ALIGN_CENTER, 5)
 
             #INPUT SOURCE
-            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose an Input video file", startDirectory = options.GetOption("Data_Folder"), value = source, choices=WebcamsList, fileMask = "Video File (*.*)|*.*", browsevalue="Browse for video...", changeCallback = partial(self.onChangeDropDown, [mn, "source"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
+            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose an Input video file", startDirectory = options.GetOption("Data_Folder"), value = source, choices=WebcamsList, fileMask = "Video (*.*)|*.*", browsevalue=["Browse for video...","Browse for directory..."], changeCallback = partial(self.onChangeDropDown, [mn, "source"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
             
             #MASK FILE
-            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose a Mask file", startDirectory = options.GetOption("Mask_Folder"), value = mf, fileMask = "pySolo mask file (*.msk)|*.msk", browsevalue="Browse for mask...", changeCallback = partial(self.onChangeDropDown, [mn, "mask_file"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
+            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose a Mask file", startDirectory = options.GetOption("Mask_Folder"), value = mf, fileMask = "pySolo mask file (*.msk)|*.msk", browsevalue=["Browse for mask..."], changeCallback = partial(self.onChangeDropDown, [mn, "mask_file"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
             
             #OUTPUT FILE
-            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose the output file", startDirectory = options.GetOption("Data_Folder"), value = md['outputfile'], fileMask = "Output File (*.txt)|*.txt", browsevalue="Browse for output...", changeCallback = partial(self.onChangeDropDown, [mn, "outputfile"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
+            gridSizer.Add(comboFileBrowser(self, wx.ID_ANY, size=(-1,-1), dialogTitle = "Choose the output file", startDirectory = options.GetOption("Data_Folder"), value = md['outputfile'], fileMask = "Output File (*.txt)|*.txt", browsevalue=["Browse for output..."], changeCallback = partial(self.onChangeDropDown, [mn, "outputfile"])), 0, wx.ALL|wx.ALIGN_CENTER, 5 )
 
             #TRACKTYPE
             ttcb = wx.ComboBox(self, -1, size=(-1,-1), value=md['track_type'], choices=tracktypes, style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
@@ -265,6 +284,7 @@ class pvg_AcquirePanel(wx.Panel):
         section = "Monitor%s" % target[0]
         keyname = target[1]
         options.setValue(section, keyname, value)
+        self.loadMonitors()
 
 
     def onChangeValue(self, target, event=None):
@@ -287,6 +307,7 @@ class pvg_AcquirePanel(wx.Panel):
         section = "Monitor%s" % target[0]
         keyname = target[1]
         options.setValue(section, keyname, value)
+        self.loadMonitors()
         
         
     def loadMonitors(self):

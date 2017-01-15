@@ -265,7 +265,7 @@ class cvPanel():
     def __init__(self, source, resolution=None, window_title='video',track_type=None, mask_file=None, output_file=None, showROI=False,showpath=False, showtime=False):
         """
         """
-    
+        
         self.title = window_title
         self.resolution = resolution
         self.showROI = showROI

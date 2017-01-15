@@ -457,7 +457,7 @@ class virtualCamMovie(Cam):
                         True                Playback in a loop
         
         """
-        print "virtualCamMovie()::__init__()"
+
         self.path = path
         
         if start < 0: start = 0
@@ -468,9 +468,9 @@ class virtualCamMovie(Cam):
         if self.step < 1: self.step = 1
         
         self.loop = loop
-        print "virtualCamMovie() creating capture from path: " + self.path
+
         self.capture = cv2.VideoCapture(self.path)
-        print "virtualCamMovie() created capture..."
+
         #finding the input resolution
         w = self.capture.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
         h = self.capture.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
@@ -482,11 +482,9 @@ class virtualCamMovie(Cam):
         self.setResolution(*resolution)
 
         self.totalFrames = self.getTotalFrames()
-        print "virtualCamMovie::__init__() totalFrames: " + str(self.totalFrames)
 
         if end < 1 or end > self.totalFrames: end = self.totalFrames
         self.lastFrame = end
-        print "virtualCamMovie()::__init__() finished..."
        
     def getResolution(self):
         """
@@ -515,7 +513,6 @@ class virtualCamMovie(Cam):
         """
         Returns frame, timestamp
         """
-        print "virtualCamMovie::getImage()"
         #cv2.SetCaptureProperty(self.capture, cv2.CV_CAP_PROP_POS_FRAMES, self.currentFrame)
         # this does not work properly. Image is very corrupted
         if not self.isLastFrame():
@@ -527,7 +524,6 @@ class virtualCamMovie(Cam):
               print "virtualCamMovie::getImage(): Couldn't get frame shape!"
               frame = self.getBlackFrame()
         else:
-          print "last frame!"
           frame = self.getBlackFrame()
 
         #elif self.currentFrame > self.lastFrame and not self.loop: return False
@@ -558,14 +554,11 @@ class virtualCamMovie(Cam):
         """
         
         if ( self.currentFrame >= self.totalFrames ) and not self.loop:
-            print "virtualCamMovie::isLastFrame() returning true"
             return True
         elif ( self.currentFrame >= self.totalFrames ) and self.loop:
-            print "virtualCamMovie::isLastFrame() returning false (looping)"
             self.currentFrame = self.start
             return False
         else:
-            print "virtualCamMovie::isLastFrame() returning false"
             return False
 
 
@@ -585,13 +578,11 @@ class virtualCamFrames(Cam):
         self.path = path
         self.fileList = self.__populateList__(start, end, step)
         self.totalFrames = len(self.fileList)
-
         self.currentFrame = 0
         self.last_time = None
         self.loop = False
 
         fp = os.path.join(self.path, self.fileList[0])
-        
         frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
         self.in_resolution = frame.shape
         
@@ -621,15 +612,14 @@ class virtualCamFrames(Cam):
         """
         Populate the file list
         """
-        
         fileList = []
         fileListTmp = os.listdir(self.path)
 
         for fileName in fileListTmp:
-            if '.tif' in fileName or '.jpg' in fileName:
+            if '.tif' in fileName or '.jpg' in fileName or '.png' in fileName:
                 fileList.append(fileName)
-
         fileList.sort()
+
         return fileList[start:end:step]
 
 
@@ -1394,7 +1384,7 @@ class Monitor(object):
         """
         Capture from movie file
         """
-        print "captureFromMovie()..."
+
         self.isVirtualCam = True
         self.source = camera
         
@@ -1431,7 +1421,6 @@ class Monitor(object):
         except:
             print "Caught setup error in self.cam.getTotalFrames()", sys.exc_info()[0]
             return False
-            #pass
 
         return self.cam is not None
 
@@ -1459,14 +1448,15 @@ class Monitor(object):
             self.resolution = self.cam.getResolution()
             self.numberOfFrames = self.cam.getTotalFrames()
         except:
-            pass
+            print "Caught setup error in self.cam.getResolution()", sys.exc_info()[0]
+            return False
 
         return self.cam is not None
 
     
     def hasSource(self):
         """
-        """
+        """       
         if self.cam is not None:
             return self.cam.hasSource()
         else:
@@ -1476,12 +1466,11 @@ class Monitor(object):
         """
         Set source intelligently
         """
-
         try:
             camera = int(camera)
         except:
             pass
-            
+
         if type(camera) == int and camera == 1000:
             self.__captureFromPICAM(resolution, options)
         elif type(camera) == int:
@@ -2029,10 +2018,7 @@ class Monitor(object):
         """
 
         ##self.imageCount += 1
-        print "Getting frame..."
         frame, time = self.cam.getImage()
-        print "got frame"
-        #print time
         
         # TRACKING RELATED
         if self.isTracking and self.mask.ROIS and frame.any(): 
@@ -2109,7 +2095,6 @@ class Monitor(object):
         
         #self.__image_queue.put(frame)
         self.__image_queue = frame
-        print "Returning frame"
         return frame
 
     def getImageFromQueue(self):
