@@ -634,8 +634,9 @@ class virtualCamFrames(Cam):
           try:
               frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
               
-          except:
+          except Exception as e:
               print ( 'error with image %s' % fp )
+              print str(e) 
               raise
         else:
             frame = self.getBlackFrame()
