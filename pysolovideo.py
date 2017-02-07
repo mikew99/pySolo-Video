@@ -627,17 +627,18 @@ class virtualCamFrames(Cam):
         """
         Returns frame, timestamp
         """
-        n = self.currentFrame
-        fp = os.path.join(self.path, self.fileList[n])
-
-        self.currentFrame += 1
-
-        try:
-            frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
-            
-        except:
-            print ( 'error with image %s' % fp )
-            raise
+        if not self.isLastFrame():
+          n = self.currentFrame
+          fp = os.path.join(self.path, self.fileList[n])
+          self.currentFrame += 1
+          try:
+              frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
+              
+          except:
+              print ( 'error with image %s' % fp )
+              raise
+        else:
+            frame = self.getBlackFrame()
 
         if self.scale:
             frame = cv2.resize(frame, self.resolution)
@@ -656,10 +657,9 @@ class virtualCamFrames(Cam):
         """
         Are we processing the last frame in the folder?
         """
-
-        if (self.currentFrame == self.totalFrames) and not self.loop:
+        if (self.currentFrame == self.totalFrames-1) and not self.loop:
             return True
-        elif (self.currentFrame == self.totalFrames) and self.loop:
+        elif (self.currentFrame == self.totalFrames-1) and self.loop:
             self.currentFrame = 0
             return False
         else:
