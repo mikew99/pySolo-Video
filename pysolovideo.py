@@ -583,7 +583,12 @@ class virtualCamFrames(Cam):
         self.loop = False
 
         fp = os.path.join(self.path, self.fileList[0])
-        frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
+        try:
+            frame = cv2.imread(fp,cv2.CV_LOAD_IMAGE_COLOR)
+        except Exception as e:
+            print ( 'Error in virtualCamFrames::__init__() %s' % fp )
+            print str(e) 
+            raise
         self.in_resolution = frame.shape
         
         if not resolution: resolution = self.in_resolution
